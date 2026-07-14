@@ -1,0 +1,29 @@
+name: Check code style
+description: Run linting (ruff) and static type checking (mypy) inside the Docker image.
+
+inputs:
+  image_name:
+    description: Name of the Docker image to run.
+    required: true
+  image_tag:
+    description: Tag of the Docker image to run.
+    required: false
+    default: latest
+
+runs:
+  using: composite
+  steps:
+    - name: Ruff lint
+      shell: bash
+      run: |
+        docker run --rm "${{ inputs.image_name }}:${{ inputs.image_tag }}" uv run ruff check .
+
+    - name: Ruff format check
+      shell: bash
+      run: |
+        docker run --rm "${{ inputs.image_name }}:${{ inputs.image_tag }}" uv run ruff format --check .
+
+    - name: Mypy type check
+      shell: bash
+      run: |
+        docker run --rm "${{ inputs.image_name }}:${{ inputs.image_tag }}" uv run mypy

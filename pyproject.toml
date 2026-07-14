@@ -1,0 +1,58 @@
+[project]
+name = "clv"
+version = "0.1.0"
+description = "A Deep Probabilistic Model for Customer Lifetime Value Prediction (ZILN DNN)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "torch",
+    "pandas",
+    "numpy",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "pre-commit",
+    "mypy",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/clv"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "S",   # flake8-bandit (security)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"] # `assert` is expected in tests
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src"]
+strict = true
+ignore_missing_imports = true # tolerate third-party libs lacking type stubs
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

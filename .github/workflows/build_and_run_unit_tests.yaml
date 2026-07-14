@@ -1,0 +1,28 @@
+name: Build Docker container and run unit tests
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  docker_build_and_run_unit_tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        id: build_docker_image
+        uses: ./.github/actions/docker_build
+        with:
+          image_name: clv
+          image_tag: latest
+
+      - name: Run unit tests
+        id: run_unit_tests
+        uses: ./.github/actions/run_unit_tests
+        with:
+          image_name: ${{ steps.build_docker_image.outputs.image_name }}
+          image_tag: ${{ steps.build_docker_image.outputs.image_tag }}

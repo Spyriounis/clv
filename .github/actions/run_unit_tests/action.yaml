@@ -1,0 +1,18 @@
+name: Run unit tests
+description: Run unit tests with pytest inside the Docker image to check Python code quality.
+
+inputs:
+  image_name:
+    description: Name of the Docker image to run.
+    required: true
+  image_tag:
+    description: Tag of the Docker image to run.
+    required: false
+    default: latest
+
+runs:
+  using: composite
+  steps:
+    - name: Pytest
+      shell: bash
+      run: docker run --rm "${{ inputs.image_name }}:${{ inputs.image_tag }}" uv run pytest

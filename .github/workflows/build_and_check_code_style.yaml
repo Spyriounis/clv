@@ -1,0 +1,28 @@
+name: Build Docker container and check code style
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  docker_build_and_check_code_style:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        id: build_docker_image
+        uses: ./.github/actions/docker_build
+        with:
+          image_name: clv
+          image_tag: latest
+
+      - name: Check code style
+        id: check_code_style
+        uses: ./.github/actions/check_code_style
+        with:
+          image_name: ${{ steps.build_docker_image.outputs.image_name }}
+          image_tag: ${{ steps.build_docker_image.outputs.image_tag }}
