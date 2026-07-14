@@ -29,6 +29,9 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # The plugin is fetched from this repo's default branch at run time and
+          # cannot be pinned to a ref, so review behavior can change between runs
+          # of the same commit. Same trust boundary as the action itself.
           plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
           plugins: "code-review@claude-code-plugins"
           prompt: "/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
