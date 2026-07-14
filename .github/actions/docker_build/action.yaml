@@ -1,0 +1,27 @@
+name: Docker build
+description: Build a Docker image from the Dockerfile at the repository root.
+
+inputs:
+  image_name:
+    description: Name of the Docker image to build.
+    required: true
+  image_tag:
+    description: Tag for the Docker image to build.
+    required: false
+    default: latest
+
+outputs:
+  image_name:
+    description: Name of the built Docker image.
+    value: ${{ inputs.image_name }}
+  image_tag:
+    description: Tag of the built Docker image.
+    value: ${{ inputs.image_tag }}
+
+runs:
+  using: composite
+  steps:
+    - name: Build Docker image
+      shell: bash
+      run: |
+        docker build --tag "${{ inputs.image_name }}:${{ inputs.image_tag }}" --file Dockerfile .

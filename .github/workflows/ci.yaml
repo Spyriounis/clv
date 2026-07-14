@@ -1,0 +1,44 @@
+name: CI
+
+# `push` is scoped to main so that the post-merge result is validated; branch
+# pushes are covered by `pull_request`, which avoids a duplicate run per push.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Built once and reused by both steps below; building per workflow meant
+      # paying for the same image twice on every push.
+      - name: Build Docker image
+        id: build_docker_image
+        uses: ./.github/actions/docker_build
+        with:
+          image_name: clv
+          image_tag: latest
+
+      - name: Check code style
+        id: check_code_style
+        uses: ./.github/actions/check_code_style
+        with:
+          image_name: ${{ steps.build_docker_image.outputs.image_name }}
+          image_tag: ${{ steps.build_docker_image.outputs.image_tag }}
+
+      - name: Run unit tests
+        id: run_unit_tests
+        uses: ./.github/actions/run_unit_tests
+        with:
+          image_name: ${{ steps.build_docker_image.outputs.image_name }}
+          image_tag: ${{ steps.build_docker_image.outputs.image_tag }}

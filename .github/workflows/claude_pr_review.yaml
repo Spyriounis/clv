@@ -1,0 +1,38 @@
+name: Claude PR review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+  # The action mints a GitHub App token by exchanging an OIDC token; without
+  # this it fails on ACTIONS_ID_TOKEN_REQUEST_URL before reaching Claude.
+  id-token: write
+
+# A new push supersedes an in-flight review; cancelling avoids paying for both.
+concurrency:
+  group: claude-pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  claude_pr_review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Review pull request
+        id: review_pull_request
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # The plugin is fetched from this repo's default branch at run time and
+          # cannot be pinned to a ref, so review behavior can change between runs
+          # of the same commit. Same trust boundary as the action itself.
+          plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
+          plugins: "code-review@claude-code-plugins"
+          prompt: "/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+          claude_args: "--max-turns 5"
